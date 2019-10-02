@@ -9,16 +9,6 @@ In the data processing folder, all the data analysis codes used for this study a
 
 Please install the latest version of ArcGIS Pro (2.7), Scikit-learn (v0.21.3), and Python 3
 ```
-Give examples
-```
-
-### Installing
-
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
 pip install -U scikit-learn
 ```
 
@@ -40,23 +30,15 @@ Explain what these tests test and why
 Give an example
 ```
 
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Xuantong Wang** - *University of Denver* - [Profile](https://scholar.google.com/citations?user=NsEDhRMAAAAJ&hl=en)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+* **Dr.Paul Sutton** - *University of Denver* - [Profile](https://scholar.google.com/citations?user=cplEVLkAAAAJ&hl=en)
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/tonyxuantong/NTL-GDP-VIIRS/blob/master/LICENSE) file for details
 
 ## Acknowledgments
 
