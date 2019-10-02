@@ -1,4 +1,4 @@
-<a href="https://www.du.edu/"><img src="https://www.google.com/url?sa=i&source=images&cd=&ved=2ahUKEwjBrNXUrP7kAhU6FjQIHQUSAZoQjRx6BAgBEAQ&url=https%3A%2F%2Fkoaa.com%2Fnews%2Fcovering-colorado%2F2019%2F03%2F20%2Funiversity-of-denver-applicants-will-no-longer-be-required-to-submit-sat-act-scores%2F&psig=AOvVaw3IW25g21QSc1bfspv4dlL6&ust=1570132272464104" title="University of Denver" alt="University of Denver"></a>
+<a href="https://www.du.edu/"><img src="https://www.du.edu/themes/custom/pl_drupal/images/logo-text.png" title="University of Denver" alt="University of Denver"></a>
 
 # Using VIIRS nighttime satellite imagery to measure sub-national GDP and inequality on a global scale
 
