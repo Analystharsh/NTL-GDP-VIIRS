@@ -1,4 +1,4 @@
-<a href="https://www.du.edu/"><img src="https://www.du.edu/themes/custom/pl_drupal/images/logo-text.png" title="University of Denver" alt="University of Denver"></a>
+<a href="https://www.du.edu/"><img src="https://www.du.edu/marcomm/assets/images/UniversityOfDenver-Signature.jpg" alt="University of Denver"></a>
 
 # Using VIIRS nighttime satellite imagery to measure sub-national GDP and inequality on a global scale
 
