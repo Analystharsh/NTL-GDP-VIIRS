@@ -28,7 +28,7 @@ The python scripts for data processsing are in the Python folder
 
 The Isolation Forest algorithm is provided by Scikit learn. The input variables are population and NTL intensity. This analysis will detect the outliers for countries in each of the income groups and change the outliers' NTL value to 0. 
 ```
-python step_1_isolatedforest
+python step_1_isolatedforest.py
 ```
 ### Data aggretation and Inequality indexes calculation
 
@@ -37,7 +37,7 @@ Data aggretation to construct Lorenz curve and produce GINI coefficients and 20:
 Explain what these tests test and why
 
 ```
-python step_2_aggregateData
+python step_2_aggregateData.py
 ```
 ## Authors
 
