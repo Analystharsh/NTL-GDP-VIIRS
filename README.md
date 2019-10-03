@@ -20,18 +20,25 @@ or
 conda install scikit-learn
 ```
 
-## Running the tests
+## Running the analysis
 
-Explain how to run the automated tests for this system
+The python scripts for data processsing are in the Python folder
 
-### Break down into end to end tests
+### Run Isolation Forest to detect and reclassify outliers
+
+The Isolation Forest algorithm is provided by Scikit learn. The input variables are population and NTL intensity. This analysis will detect the outliers for countries in each of the income groups and change the outliers' NTL value to 0. 
+```
+python step_1_isolatedforest
+```
+### Data aggretation and Inequality indexes calculation
+
+Data aggretation to construct Lorenz curve and produce GINI coefficients and 20:20 ratios based on cumulative subnational GDP distribution.
 
 Explain what these tests test and why
 
 ```
-Give an example
+python step_2_aggregateData
 ```
-
 ## Authors
 
 * **Xuantong Wang** - *University of Denver* - [Profile](https://scholar.google.com/citations?user=NsEDhRMAAAAJ&hl=en)
