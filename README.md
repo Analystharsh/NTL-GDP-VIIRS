@@ -1,8 +1,8 @@
 <a href="https://www.du.edu/"><img src="https://www.du.edu/marcomm/assets/images/UniversityOfDenver-Signature.jpg" alt="University of Denver"></a>
 
-# Using VIIRS nighttime satellite imagery to measure sub-national GDP and inequality on a global scale
+# Global mapping of GDP at 1 km2 using VIIRS nighttime satellite imagery 
 
-Analysing socioeconomic development in an accurate and timely manner is critical for achieving the Sustainable Development Goals (SDGs) at both national and global levels. In past decades, scientists have proposed many methods for estimating human activity on Earth’s surface at various spatiotemporal scales using nighttime light (NTL) data. However, the NTL data and the associated processing methods have some characteristics that limit the reliability and applicability of using NTL for measuring socioeconomic development. In this study, we utilize the Isolation Forest machine learning algorithm for more intelligent data processing and the VIIRS NTL data to capture human activities. This model is highly flexible in that it can process the data in an unsupervised manner at various spatial scales. We have applied the method to measure and estimate the socioeconomic development on a global scale by estimating sub-national Gross domestic products (GDP). Results show that this method can produce reliable sub-national GDP data to estimate inequality. 
+Frequent and rapid spatially explicit assessment of socioeconomic development is critical for achieving the Sustainable Development Goals (SDGs) at both national and global levels. In past decades, scientists have proposed many methods for estimating human activity on the Earth’s surface at various spatiotemporal scales using nighttime lights (NTL) data. NTL data and the associated processing methods have been limited their reliability and applicability for systematic measuring and mapping of socioeconomic development. This study utilizes Visible Infrared Imaging Radiometer Suite (VIIRS) NTL and the Isolation Forest machine learning algorithm for more intelligent data processing to capture human activities. We use machine learning and NTL data to map gross domestic product (GDP) at 1 km2. We then use these data products to derive inequality indexes (e.g. Gini coefficients) at nationally aggregate levels. This flexible approach processes the data in an unsupervised manner at various spatial scales. Our assessments show that this method produces accurate sub-national GDP data products for mapping and monitoring human development uniformly across the globe. 
 
 ## Getting Started
 In the data processing folder, all the data analysis codes used for this study are prepared using Python. The population data conversion codes, including the conversion of population raster data into point data and the conversion of GDP data into raster data, were created and converted using ArcPy in ArcGIS pro 2.4. The outlier detection model (using iForest algorithm) was written based on scikit-learn v0.21.3 versions. Specific instructions are included as comments in python files. The validation data folder contains the aggregated sub-national NTL results for validation. All input data are obtained from open data sources available online. 
@@ -44,6 +44,8 @@ python step_2_aggregateData.py
 * **Xuantong Wang** - *University of Denver* - [Profile](https://scholar.google.com/citations?user=NsEDhRMAAAAJ&hl=en)
 
 * **Dr.Paul Sutton** - *University of Denver* - [Profile](https://scholar.google.com/citations?user=cplEVLkAAAAJ&hl=en)
+
+* **Bingxin Qi** - *University of Denver* 
 
 ## License
 
