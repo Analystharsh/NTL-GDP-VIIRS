@@ -1,95 +1,191 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sun May 19 14:01:06 2019
+Created on Sun Oct  6 03:47:34 2019
 
-@author: xuantongwang
+@author: tonywang
 """
 
 import pandas as pd
 import numpy as np
 
-#Find REAL NAME
-filename = "/Volumes/Extreme 500/GINI/Python/data/gadm2_info.csv"
-df_name1= pd.read_csv(filename, delimiter = ',',usecols=['GID_0','GID_2'])
-filename = "/Volumes/Extreme 500/GINI/Python/data/gadm2newid.csv"
-df_name2= pd.read_csv(filename, delimiter = ',',usecols=['GID_2','New_ID2'])
-df_name2.columns = ['GID_2','gadm2_1']
+#read all the urban data points
+filename = "/urban_points.csv"
+df_urban_all = pd.read_csv(filename, delimiter = ',')
 
-df_name_new = pd.merge(df_name1, df_name2,on='GID_2')
-
-
-#filename = "E:/GINI/Python/data/urbandata.csv"
-filename = "/Volumes/Extreme 500/GINI/Python/v4/if_urban_filtered.csv"
-#rename column
-df_urban = pd.read_csv(filename, delimiter = ',')
-df_urban['NAME'] = df_urban['GID_0']
-
-len(df_urban.GID_0.unique())
-len(df_urban)
-#summarize urban pop and ntl data
-dfurban_ntlsum = df_urban.groupby(['GID_0'])['NTL'].sum().reset_index().sort_values('NTL', ascending = False)
-dfurban_ntlsum.columns = ['NAME','SumNTL']
-
-dfurban_popsum = df_urban.groupby(['GID_0'])['POP'].sum().reset_index().sort_values('POP', ascending = False)
-dfurban_popsum.columns = ['NAME','SumUrPop']
-
-dfurban_ntldis = df_urban.groupby(['GID_2'])['NTL'].sum().reset_index().sort_values('NTL', ascending = False)
-dfurban_ntldis.columns = ['GID_2','DisNTL']
-
-dfurban_popdis = df_urban.groupby(['GID_2'])['POP'].sum().reset_index().sort_values('POP', ascending = False)
-dfurban_popdis.columns = ['GID_2','DisUrPop']
-
-#append all pop
-#filename_allpop = "E:/GINI/Python/data/ntl0_zonal.csv"
-filename = "/Volumes/Extreme 500/GINI/Python/v4/all_data.csv"
-
+#read all data
+filename = "all_points.csv"
 df_all = pd.read_csv(filename, delimiter = ',')
 
-
+#find the total national population
 df_allpop = df_all.groupby(['GID_0'])['POP'].sum().reset_index().sort_values('POP', ascending = False)
-df_allpop.columns = ['NAME','TotalPOP']
+df_allpop.columns = ['GID_0','TotalPOP']
 
-df_dis = df_all.groupby(['GID_0','GID_2'])['POP'].sum().reset_index().sort_values('POP', ascending = False)
-df_dis.columns = ['NAME','GID_2','DisPOP']
+#read all unique country names
+df_all_names = df_allpop.GID_0.unique().tolist()
 
-filename_agr = "/Volumes/Extreme 500/GINI/Python/data/agr.csv"
-dfagr = pd.read_csv(filename_agr, delimiter = ',', usecols = ['Country Code','2015'])
-dfagr.columns = ['NAME','AGR']
+#create empty dataframe to store distrct-level data
+cols1 = ['GID_0','SumNTL']
+dfurban_ntlsum = pd.DataFrame(columns=cols1)
+cols2 = ['GID_0','SumUrPop']
+dfurban_popsum = pd.DataFrame(columns=cols2)
+cols3 = ['GID_dis','DisNTL']
+dfurban_ntldis = pd.DataFrame(columns=cols3)
+cols4 = ['GID_dis','DisUrPop']
+dfurban_popdis = pd.DataFrame(columns=cols4)
+
+#process level 2 countries first
+#group by level 2 first
+df_dis2 = df_all.groupby(['GID_0','GID_2'])['POP'].sum().reset_index().sort_values('POP', ascending = False)
+df_dis2.columns = ['GID_0','GID_dis','DisPOP']
+df_dis2_names = df_dis2.GID_0.unique().tolist()
+
+##summarize level 2 urban pop and ntl data
+df_urban = df_urban_all[df_urban_all['GID_0'].isin(df_dis2_names)]
+dfurban_ntlsum_l2 = df_urban.groupby(['GID_0'])['NTL'].sum().reset_index().sort_values('NTL', ascending = False)
+dfurban_ntlsum_l2.columns = ['GID_0','SumNTL']
+
+dfurban_popsum_l2 = df_urban.groupby(['GID_0'])['POP'].sum().reset_index().sort_values('POP', ascending = False)
+dfurban_popsum_l2.columns = ['GID_0','SumUrPop']
+
+dfurban_ntldis_l2 = df_urban.groupby(['GID_2'])['NTL'].sum().reset_index().sort_values('NTL', ascending = False)
+dfurban_ntldis_l2.columns = ['GID_dis','DisNTL']
+
+dfurban_popdis_l2 = df_urban.groupby(['GID_2'])['POP'].sum().reset_index().sort_values('POP', ascending = False)
+dfurban_popdis_l2.columns = ['GID_dis','DisUrPop']
+
+#append new values
+dfurban_ntlsum = dfurban_ntlsum.append(dfurban_ntlsum_l2) 
+dfurban_popsum = dfurban_popsum.append(dfurban_popsum_l2) 
+dfurban_ntldis = dfurban_ntldis.append(dfurban_ntldis_l2) 
+dfurban_popdis = dfurban_popdis.append(dfurban_popdis_l2) 
+
+
+#check for countries with missing level 2
+miss_list_dis = np.setdiff1d(df_all_names,df_dis2_names)
+
+#group by level 1
+df_dis1 = df_all[df_all['GID_0'].isin(miss_list_dis)]
+df_dis_p2 = df_dis1.groupby(['GID_0','GID_1'])['POP'].sum().reset_index().sort_values('POP', ascending = False)
+df_dis_p2.columns = ['GID_0','GID_dis','DisPOP']
+df_dis1_names = df_dis_p2.GID_0.unique().tolist()
+
+##summarize level 1 urban pop and ntl data
+df_urban = df_urban_all[df_urban_all['GID_0'].isin(df_dis1_names)]
+dfurban_ntlsum_l1 = df_urban.groupby(['GID_0'])['NTL'].sum().reset_index().sort_values('NTL', ascending = False)
+dfurban_ntlsum_l1.columns = ['GID_0','SumNTL']
+
+dfurban_popsum_l1 = df_urban.groupby(['GID_0'])['POP'].sum().reset_index().sort_values('POP', ascending = False)
+dfurban_popsum_l1.columns = ['GID_0','SumUrPop']
+
+dfurban_ntldis_l1 = df_urban.groupby(['GID_1'])['NTL'].sum().reset_index().sort_values('NTL', ascending = False)
+dfurban_ntldis_l1.columns = ['GID_dis','DisNTL']
+
+dfurban_popdis_l1 = df_urban.groupby(['GID_1'])['POP'].sum().reset_index().sort_values('POP', ascending = False)
+dfurban_popdis_l1.columns = ['GID_dis','DisUrPop']
+
+#append new values
+dfurban_ntlsum = dfurban_ntlsum.append(dfurban_ntlsum_l1) 
+dfurban_popsum = dfurban_popsum.append(dfurban_popsum_l1) 
+dfurban_ntldis = dfurban_ntldis.append(dfurban_ntldis_l1) 
+dfurban_popdis = dfurban_popdis.append(dfurban_popdis_l1) 
+
+#group by level 0
+miss_list_dis2 = np.setdiff1d(miss_list_dis,df_dis1_names)
+#select level 0
+df_dis0 = df_all[df_all['GID_0'].isin(miss_list_dis2)]
+
+#group by level 0
+df_dis_p3 = df_dis0.groupby(['GID_0'])['POP'].sum().reset_index().sort_values('POP', ascending = False)
+df_dis_p3.columns = ['GID_0','DisPOP']
+
+df_dis_p3['GID_dis']=df_dis_p3['GID_0']
+df_dis_p3 = df_dis_p3[['GID_0','GID_dis','DisPOP']]
+
+df_urban = df_urban_all[df_urban_all['GID_0'].isin(df_dis1_names)]
+dfurban_ntlsum_l0 = df_urban.groupby(['GID_0'])['NTL'].sum().reset_index().sort_values('NTL', ascending = False)
+dfurban_ntlsum_l0.columns = ['GID_0','SumNTL']
+
+
+
+dfurban_popsum_l0 = df_urban.groupby(['GID_0'])['POP'].sum().reset_index().sort_values('POP', ascending = False)
+dfurban_popsum_l0.columns = ['GID_0','SumUrPop']
+
+
+#append new values
+dfurban_ntlsum = dfurban_ntlsum.append(dfurban_ntlsum_l0) 
+dfurban_popsum = dfurban_popsum.append(dfurban_popsum_l0) 
+
+#becasue they only have level 0
+dfurban_ntldis_l0 = dfurban_ntlsum_l0
+dfurban_ntldis_l0.columns = ['GID_dis','DisNTL']
+dfurban_popdis_l0= dfurban_popsum_l0
+dfurban_popdis_l0.columns = ['GID_dis','DisUrPop']
+dfurban_ntldis = dfurban_ntldis.append(dfurban_ntldis_l0) 
+dfurban_popdis = dfurban_popdis.append(dfurban_popdis_l0) 
+
+
+df_dis0_names = df_dis_p3.GID_0.unique().tolist()
+
+cols = ['GID_0','GID_dis','DisPOP']
+df_dis = pd.DataFrame(columns=cols)
+df_dis = df_dis.append(df_dis2) 
+df_dis = df_dis.append(df_dis_p2)
+df_dis = df_dis.append(df_dis_p3)
+
+
+#read all the agriculatural production ratios
+filename_agr = "agr.csv"
+dfagr = pd.read_csv(filename_agr, delimiter = ',', usecols = ['NAME','AGR'])
+dfagr.columns = ['GID_0','AGR']
 dfagr = dfagr[dfagr['AGR'].notnull()]
-namelist = dfagr.NAME.unique().tolist()
+namelist = dfagr.GID_0.unique().tolist()
 #produce a new table
-df_dis = df_dis[df_dis.NAME.isin(namelist)]
-gid0list = df_dis.NAME.tolist()
-gid2list = df_dis.GID_2.tolist()
-cols = ['NAME', 'PerGDP', 'PerPop','PerUrGDPPC','PerRuGDPPC','GID_2']
+df_dis = df_dis[df_dis.GID_0.isin(namelist)]
+gid0list = df_dis.GID_0.tolist()
+GID_dis_list = df_dis.GID_dis.tolist()
+cols = ['GID_0', 'PerGDP', 'PerPop','PerUrGDPPC','PerRuGDPPC','GID_dis']
 result  = pd.DataFrame(columns = cols)
 
+#calculate GDP per capita for each sub-national district
 i = 0
-while i < len(gid0list):
+while i < len(gid0list):#len(gid0list)
     #print(i)
     #find out country name
     country_name = gid0list[i]
-    dis_name = gid2list[i]
-    country_pop = df_allpop[df_allpop['NAME']==country_name].iloc[0][1]
-    dis_pop = df_dis[df_dis['GID_2']==dis_name].iloc[0][2]
+    dis_name = GID_dis_list[i]
+    country_pop = df_allpop[df_allpop['GID_0']==country_name].iloc[0][1]
+    dis_pop = df_dis[df_dis['GID_dis']==dis_name].iloc[0][2]
         
     #find out total per of pop
     dis_per_pop = dis_pop/country_pop
-    country_ntl = dfurban_ntlsum[dfurban_ntlsum['NAME']==country_name].iloc[0][1]
-    if len(dfurban_ntldis[dfurban_ntldis['GID_2']==dis_name])>0:
-        dis_ntl = dfurban_ntldis[dfurban_ntldis['GID_2']==dis_name].iloc[0][1]
+    #extract total urban ntl info
+    if len(dfurban_ntlsum[dfurban_ntlsum['GID_0']==country_name])>0:
+        country_ntl = dfurban_ntlsum[dfurban_ntlsum['GID_0']==country_name].iloc[0][1]
+    else: 
+        country_ntl = 0
+    #extract total urban pop info
+    if len(dfurban_popsum[dfurban_popsum['GID_0']==country_name])>0:
+        urban_country_pop = dfurban_popsum[dfurban_popsum['GID_0']==country_name].iloc[0][1]
+    else:
+        urban_country_pop = 0
+    #extract dis urban ntl info
+    if len(dfurban_ntldis[dfurban_ntldis['GID_dis']==dis_name])>0:
+        dis_ntl = dfurban_ntldis[dfurban_ntldis['GID_dis']==dis_name].iloc[0][1]
     else:
         dis_ntl = 0
-    if len(dfurban_popdis[dfurban_popdis['GID_2']==dis_name])>0:
-        urban_dis_pop = dfurban_popdis[dfurban_popdis['GID_2']==dis_name].iloc[0][1]
+    #extract dis urban pop info
+    if len(dfurban_popdis[dfurban_popdis['GID_dis']==dis_name])>0:
+        urban_dis_pop = dfurban_popdis[dfurban_popdis['GID_dis']==dis_name].iloc[0][1]
     else:
         urban_dis_pop = 0
-    urban_country_pop = dfurban_popsum[dfurban_popsum['NAME']==country_name].iloc[0][1]
     
     rural_per_pop = (dis_pop-urban_dis_pop)/(country_pop-urban_country_pop)
-    urban_per_ntl = dis_ntl/country_ntl
-    agr = dfagr[dfagr['NAME']==country_name].iloc[0][1]/100
+    if country_ntl != 0: 
+        urban_per_ntl = dis_ntl/country_ntl
+    else:
+        urban_per_ntl = 0
+    agr = dfagr[dfagr['GID_0']==country_name].iloc[0][1]/100
     rural_per_gdp = rural_per_pop*agr
     urban_per_gdp = urban_per_ntl*(1-agr)
     perurgdppc = urban_per_gdp/urban_dis_pop
@@ -99,20 +195,12 @@ while i < len(gid0list):
     #append values
     result = result.append({cols[0]: country_name, cols[1]: dis_per_gdp,cols[2]: dis_per_pop,cols[3]: perurgdppc,cols[4]: perrugdppc,cols[5]: dis_name}, ignore_index=True)
     i = i+1
-    
-    
+ 
 
-######Part 4
-#['NAME', 'PerGDP', 'PerPop']
-#result = df_urb
+#calculate GINI
 result['gdppc']= result['PerGDP']/result['PerPop']
-result.to_csv('gdpprofiledata.csv')
-print(len(result.NAME.unique()))
-result = result.sort_values('NAME', ascending = False)
-print(result.PerGDP.sum(),"gdpsum")
-print(result.PerPop.sum(),"popsum")
-final_ctr = list(result.NAME.unique())
-
+result = result.sort_values('GID_0', ascending = False)
+final_ctr = list(result.GID_0.unique())
 df_all = result
 # Finding Gini Coefficient
 def gini(pop, inc):
@@ -132,7 +220,7 @@ df_gini = pd.DataFrame()
 
 for country in final_ctr:
     #print(country)
-    df_ctr = df_all.loc[df_all['NAME'] == country]
+    df_ctr = df_all.loc[df_all['GID_0'] == country]
     df_ctr['PerGDP']=df_ctr['PerGDP']*100
     df_ctr['PerPop']=df_ctr['PerPop']*100
     print(country)
@@ -154,63 +242,18 @@ for country in final_ctr:
     #print("sort done")
     gini_co = gini(pop_perc,gdp_perc)
     print(gini_co)
-    df_gini = df_gini.append({'NAME': str(country),'GINI': gini_co}, ignore_index=True)
+    df_gini = df_gini.append({'GID_0': country,'GINI': gini_co}, ignore_index=True)
     
 ginirank = df_gini.sort_values(['GINI'], ascending=[True])
-print(ginirank)
-print("Unique Countries", len(ginirank.NAME.unique()))
-
-#save to model
-ginirank.to_csv(r'/Volumes/Extreme 500/GINI/Python/v4/ntlgini_all_dis.csv',index = False)
 
 
-###########ADDITIONAL INFO
-#filename_ntlgini = "ntlgini_allv2.csv"
-#df_v2 = pd.read_csv(filename_ntlgini)
-
-
-##attach smod values
-#filename_allpop = "/Volumes/Extreme 500/GINI/Python/data/allpopdata.csv"
-#df_all = pd.read_csv(filename_allpop, delimiter = ',')
-#df_smod = pd.merge(df_all, df_name_new,on='gadm2_1')
-##sum each smod pop
-#df_smod2 = df_smod.groupby(['GID_0','smod_1'])['VALUE'].sum().reset_index().sort_values('VALUE', ascending = False)
-##find percent
-#df_all2 = pd.merge(df_all, df_name_new,on='gadm2_1')
-#df_allpop2 = df_all2.groupby(['GID_0'])['VALUE'].sum().reset_index().sort_values('VALUE', ascending = False)
-#df_smod3 = pd.merge(df_smod2, df_allpop2,on='GID_0')
-#list(df_smod3)
-#
-#names = df_smod3.GID_0.unique().tolist()
-#i = 0
-#smodids = df_smod3['smod_1'].unique().tolist()
-#for smodid in smodids:
-#    cols = ['NAME']
-#    cols.append('SMOD'+str(smodid))
-#    result_temp  = pd.DataFrame(columns = cols)
-#
-#    dfsmodtemp = df_smod3[df_smod3['smod_1']==smodid]
-#    for name in names:
-#        dfsmodtemp2 = dfsmodtemp[dfsmodtemp['GID_0']==name]
-#        if len (dfsmodtemp2)>0:
-#            per_smod = (dfsmodtemp2['VALUE_x'].iloc[0])/(dfsmodtemp2['VALUE_y'].iloc[0])
-#        else:
-#            per_smod = 0
-#        result_temp = result_temp.append({cols[0]:name, cols[1]:per_smod},ignore_index=True)
-#    df_v2 = df_v2.merge(result_temp, how='left', on='NAME')
-#    #df_v2 = df_v2.merge(df_v2,result_temp,on='NAME')
-#df_v2.to_csv('ntlgini_allv2_v2.csv',index = False)
-
-##calculate 2020 ratio
-
-
+#calculate 20:20 ratios
 dfallbackup = df_all
-
-
+final_ctr = list(result.GID_0.unique())
 df_ratio = pd.DataFrame()
 for country in final_ctr:
     #print(country)
-    df_ctr = df_all.loc[df_all['NAME'] == country]
+    df_ctr = df_all.loc[df_all['GID_0'] == country]
     df_ctr_bottom = df_ctr.sort_values(['gdppc'], ascending=[True])
     df_ctr_top = df_ctr.sort_values(['gdppc'], ascending=[False])
     
@@ -244,33 +287,23 @@ for country in final_ctr:
             gdp_top = gdp_top+gdp_val
         pop_top = pop_top+pop_val
     ieratio = gdp_top/gdp_bottom
-    print(country,ieratio)
-    df_ratio = df_ratio.append({'NAME': str(country),'2020Ratio': ieratio}, ignore_index=True)
+    df_ratio = df_ratio.append({'GID_0': country,'2020Ratio': ieratio}, ignore_index=True)
     
-df_v3 = ginirank.merge(df_ratio,on='NAME')
+df_v3 = ginirank.merge(df_ratio,on='GID_0')
 
-#join with continent and income data
-filename2 = "/Volumes/Extreme 500/GINI/Python/data/income_code.csv"
-df_inc= pd.read_csv(filename2,delimiter = ',')
-df_inc.columns = ['NAME', 'NameF', 'Income']
-filename3 = "/Volumes/Extreme 500/GINI/Python/data/continentcode.csv"
-df_cont= pd.read_csv(filename3,delimiter = ',')
-df_cont.columns = ['NAME', 'Continent']
-
-df_v3 = pd.merge(df_v3, df_inc,on='NAME')
-#df_v3 = pd.merge(df_v3, df_cont,on='NAME')
-
-df_v3.to_csv('ntlginiratio_dis.csv',index = False)
-
-
-#save point copy
-filename = "/Volumes/Extreme 500/GINI/Python/v4/all_data.csv"
-
+#save and update point data with GDP per pixel
+filename = "/Volumes/Extreme 500/GINI/Python/v4/all_data25.csv"
 df_all = pd.read_csv(filename, delimiter = ',')
+df_all['GID_dis'] = df_all['GID_2']
+#create new dis columjn
+df_all.GID_dis.fillna(df_all.GID_1, inplace=True)
+df_all.GID_dis.fillna(df_all.GID_0, inplace=True)
 
-df_allv2 = pd.merge(df_all, result,on='GID_2')
-df_allv2 = df_allv2[['FID','pointid','GID_0','GID_2','SMOD','PerUrGDPPC','PerRuGDPPC']]
-
+#join the gdppc data
+df_allv2 = pd.merge(df_all, result,on='GID_dis')
+df_allv2 = df_allv2[['FID','pointid','GID_0_x','SMOD','POP','PerUrGDPPC','PerRuGDPPC']]
+df_allv2.columns = ['FID','pointid','GID_0','SMOD','POP','PerUrGDPPC','PerRuGDPPC']
+#actual gdp per point
 filename_gdp = "/Volumes/Extreme 500/GINI/Python/data/gdp.csv"
 dfgdp = pd.read_csv(filename_gdp, delimiter = ',', usecols = ['Country Code','2015'])
 dfgdp.columns = ['GID_0','GDP']
@@ -280,10 +313,11 @@ df_allv2 = pd.merge(df_allv2, dfgdp,on='GID_0')
 
 def f(row):
     if row['SMOD'] >20:
-        val = row['PerUrGDPPC']*row['GDP'];
+        val = row['PerUrGDPPC']*row['GDP']*row['POP'];
     else:
-        val = row['PerRuGDPPC']*row['GDP']
+        val = row['PerRuGDPPC']*row['GDP']*row['POP'];
     return val
 df_allv2['GDPPT'] = df_allv2.apply(f, axis=1)
 
-df_allv2.to_csv('all_datapt_update.csv',index = False)
+df_allv2.to_csv('all_data_update.csv',index = False)
+
