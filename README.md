@@ -9,7 +9,7 @@ In the data processing folder, all the data analysis codes used for this study a
 
 ### Prerequisites
 
-Please install the latest version of ArcGIS Pro (2.7), Scikit-learn (v0.21.3), and Python 3
+Please install the latest version Scikit-learn (v0.21.3)
 ```
 pip install -U scikit-learn
 ```
@@ -26,15 +26,13 @@ The python scripts for data processsing are in the Python folder
 
 ### Run Isolation Forest to detect and reclassify outliers
 
-The Isolation Forest algorithm is provided by Scikit learn. The input variables are population and NTL intensity. This analysis will detect the outliers for countries in each of the income groups and change the outliers' NTL value to 0. 
+The Isolation Forest algorithm is provided by Scikit learn. This read all the attributes of the point data The input variables are population and NTL intensity. This analysis will detect the outliers for countries in each of the income groups and change the outliers' NTL value to 0. 
 ```
 python step_1_isolatedforest.py
 ```
 ### Data aggretation and Inequality indexes calculation
 
-Data aggretation to construct Lorenz curve and produce GINI coefficients and 20:20 ratios based on cumulative subnational GDP distribution.
-
-Explain what these tests test and why
+Data aggretation to construct Lorenz curve and produce GINI coefficients and 20:20 ratios based on cumulative subnational GDP distribution. GDP information is updated for each point so that they can be used to join with the original data points (based on pointid) and use point to raster tool in Arcgis Pro or Arcmap to create GDP at 1km2 across the globe in geotiff format. 
 
 ```
 python step_2_aggregateData.py
